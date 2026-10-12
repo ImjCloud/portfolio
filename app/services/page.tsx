@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import { ArrowRight, ClipboardCheck, KanbanSquare, Route, UsersRound } from "lucide-react";
+import Link from "next/link";
+import { PageHero } from "@/components/page-hero";
+import { Button } from "@/components/ui/button";
+export const metadata: Metadata = { title: "Services" };
+const services = [[ClipboardCheck,"Business analysis & discovery","Requirements elicitation, process mapping, BRDs, user stories and acceptance criteria that give delivery teams a dependable starting point."],[KanbanSquare,"Agile delivery support","Backlog refinement, sprint rituals, delivery forecasting, UAT coordination and a practical operating rhythm for cross-functional teams."],[Route,"Process improvement","Current-state analysis, fit-gap assessment, KPI frameworks and future-state design to make operations clearer and more efficient."],[UsersRound,"Stakeholder alignment","Decision-ready reporting, workshops and communication that keep business, product and engineering working from the same picture."]];
+export default function ServicesPage() { return <><PageHero eyebrow="Services" title="Practical support for complex delivery moments." description="Engagements are tailored to the team, the product stage and the decision that needs to be made next."/><section className="section container"><div className="grid gap-5 md:grid-cols-2">{services.map(([Icon,title,copy]) => { const I=Icon as typeof ClipboardCheck; return <article key={title as string} className="rounֻǱ˞
