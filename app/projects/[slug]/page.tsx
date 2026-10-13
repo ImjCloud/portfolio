@@ -15,6 +15,7 @@ import { siteConfig } from "@/data/site";
 import { Button } from "@/components/ui/button";
 import { ProjectCover } from "@/components/project-cover";
 import { CaseStudyFlow } from "@/components/case-study-flow";
+import { EvidenceSamples } from "@/components/evidence-samples";
 import { AuroraBackground } from "@/components/aurora-background";
 import { Reveal } from "@/components/motion/reveal";
 
@@ -126,6 +127,7 @@ export default async function ProjectDetailPage({
       </section>
 
       <CaseStudyFlow slug={project.slug} />
+      <EvidenceSamples slug={project.slug} />
 
       <section className="section container">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_.75fr]">
