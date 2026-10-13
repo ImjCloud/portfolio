@@ -93,14 +93,18 @@ export function AdminContentPanel() {
 
   async function handleDelete(item: ContentItem) {
     try {
-      await fetch("/api/content/admin/", {
+      const response = await fetch("/api/content/admin/", {
         method: "DELETE",
         headers: { "Content-Type": "application/json", "x-admin-secret": secret },
-        body: JSON.stringify({ id: item.id, fileName: item.file_name, imageName: item.image_name }),
+        body: JSON.stringify({ id: item.id }),
       });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error ?? `Delete failed (${response.status}).`);
+      }
       setItems((current) => current.filter((existing) => existing.id !== item.id));
-    } catch {
-      setUploadError("Could not delete that item. Please try again.");
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Could not delete that item. Please try again.");
     }
   }
 
