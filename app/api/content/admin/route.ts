@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   try {
     const rows = await supabaseRest.adminSelect("content_items", "select=id,section,name,description,tools,file_name,image_name,created_at&order=created_at.desc");
     return NextResponse.json({ configured: true, items: rows });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ configured: true, items: [], error: "Unable to load content items." }, { status: 500 });
   }
 }
@@ -103,22 +103,45 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Unable to save content item." }, { status: 500 });
   }
 }
 
 export async function DELETE(req: NextRequest) {
   if (!checkAdminSecret(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
-  const body = (await req.json().catch(() => null)) as { id?: string; fileName?: string | null; imageName?: string | null } | null;
-  if (!body?.id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+  const body = (await req.json().catch(() => null)) as { id?: string } | null;
+  const id = typeof body?.id === "string" ? body.id.trim() : "";
+  if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
 
   try {
-    await supabaseRest.adminDelete("content_items", body.id);
-    if (body.fileName) await contentUploads.remove(body.fileName).catch(() => null);
-    if (body.imageName) await contentUploads.remove(body.imageName).catch(() => null);
+    // Resolve storage object names from the trusted database record, never from client input.
+    const rows = await supabaseRest.adminSelect(
+      "content_items",
+      `select=id,file_name,image_name&id=eq.${encodeURIComponent(id)}&limit=1`,
+    ) as Array<{ id: string; file_name?: string | null; image_name?: string | null }>;
+    const item = Array.isArray(rows) ? rows[0] : undefined;
+    if (!item) return NextResponse.json({ error: "Content item not found." }, { status: 404 });
+
+    await supabaseRest.adminDelete("content_items", id);
+
+    // Stored names are generated server-side; reject unexpected paths as defence in depth.
+    const safeStoredName = (value: string | null | undefined) =>
+      typeof value === "string" &&
+      value.length > 0 &&
+      !value.includes("/") &&
+      !value.includes("\\\\") &&
+      value !== "." &&
+      value !== "..";
+
+    if (safeStoredName(item.file_name)) {
+      await contentUploads.remove(item.file_name!).catch(() => null);
+    }
+    if (safeStoredName(item.image_name)) {
+      await contentUploads.remove(item.image_name!).catch(() => null);
+    }
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Unable to delete content item." }, { status: 500 });
   }
 }
