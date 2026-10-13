@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRatingDisplay } from "@/components/star-rating";
@@ -45,14 +45,6 @@ export function AdminTestimonialsPanel() {
     }
   }, []);
 
-  useEffect(() => {
-    const saved = typeof window !== "undefined" ? sessionStorage.getItem("admin-secret") : null;
-    if (saved) {
-      setSecret(saved);
-      load(saved);
-    }
-  }, [load]);
-
   async function act(id: string, action: "approve" | "reject") {
     setBusyId(id);
     setActionError(null);
@@ -79,7 +71,6 @@ export function AdminTestimonialsPanel() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          sessionStorage.setItem("admin-secret", secret);
           load(secret);
         }}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
