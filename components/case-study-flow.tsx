@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, FileCheck2, GitBranch, Workflow } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileCheck2, Workflow } from "lucide-react";
 
 type FlowStep = {
   title: string;
