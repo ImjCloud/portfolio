@@ -31,7 +31,7 @@ export const stats = [
   { value: 3, suffix: "+", label: "Years delivering digital products" },
   { value: 30, suffix: "%", label: "Faster feature delivery cycle" },
   { value: 40, suffix: "+", label: "Requirements revalidated on one platform" },
-  { value: 25, suffix: "%", label: "Reporting efficiency gained" },
+  { value: 25, suffix: "%", label: "Less manual reporting preparation" },
 ];
 
 export const recruiterFacts = [
