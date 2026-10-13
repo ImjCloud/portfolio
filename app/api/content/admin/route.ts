@@ -113,6 +113,9 @@ export async function DELETE(req: NextRequest) {
   const body = (await req.json().catch(() => null)) as { id?: string } | null;
   const id = typeof body?.id === "string" ? body.id.trim() : "";
   if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+    return NextResponse.json({ error: "Invalid id." }, { status: 400 });
+  }
 
   try {
     // Resolve storage object names from the trusted database record, never from client input.
@@ -130,7 +133,7 @@ export async function DELETE(req: NextRequest) {
       typeof value === "string" &&
       value.length > 0 &&
       !value.includes("/") &&
-      !value.includes("\\\\") &&
+      !value.includes("\\") &&
       value !== "." &&
       value !== "..";
 
