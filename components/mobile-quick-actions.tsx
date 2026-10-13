@@ -32,4 +32,11 @@ export function MobileQuickActions() {
           rel={external ? "noreferrer" : undefined}
           download={download}
           className="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl text-ink transition active:scale-95 active:bg-brand/10"
-        >ֻǱ˞
+        >
+          <Icon size={18} className="text-brand" />
+          <span className="text-[11px] font-semibold">{label}</span>
+        </a>
+      ))}
+    </nav>
+  );
+}

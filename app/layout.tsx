@@ -25,4 +25,29 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: siֻǱ˞
+    name: siteConfig.name,
+    jobTitle: siteConfig.title,
+    url: siteConfig.url,
+    email: siteConfig.email,
+    sameAs: [siteConfig.linkedin],
+    knowsAbout: ["Business Analysis", "Agile Delivery", "Product Delivery", "Requirements Engineering", "Digital Transformation"],
+  };
+  return (
+    <html lang="en-GB" suppressHydrationWarning>
+      <body id="top">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
+        <a href="#main-content" className="sr-only fixed left-4 top-4 z-[100] rounded-lg bg-ink px-4 py-3 text-paper focus:not-sr-only">Skip to content</a>
+        <SiteHeader />
+        <main id="main-content">{children}</main>
+        <SiteFooter />
+        <div aria-hidden="true" className="h-20 sm:hidden" />
+        <MobileQuickActions />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
+      </body>
+    </html>
+  );
+}

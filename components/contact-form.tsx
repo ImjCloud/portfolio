@@ -43,4 +43,30 @@ export function ContactForm() {
   }
 
   return (
-   ֻǱ˞
+    <form onSubmit={submit} className="rounded-4xl border border-line bg-paper p-6 shadow-card sm:p-8">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Name" name="name" autoComplete="name" required />
+        <Field label="Email" name="email" type="email" autoComplete="email" required />
+      </div>
+      <div className="mt-5"><Field label="Organisation (optional)" name="company" autoComplete="organization" /></div>
+      <label className="mt-5 block text-sm font-semibold text-ink">Message
+        <textarea name="message" required rows={6} placeholder="Tell me a little about the opportunity or challenge." className="mt-2 w-full resize-y rounded-2xl border border-line bg-surface px-4 py-3 text-base leading-6 text-ink outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/20" />
+      </label>
+      <div className="mt-6 flex flex-wrap items-center gap-4">
+        <Button type="submit" variant="brand" disabled={status === "sending"}>
+          {status === "sending" ? <Loader2 size={16} className="animate-spin-slow" /> : <Send size={16} />} Send enquiry
+        </Button>
+        {status === "sent" ? <p className="text-sm text-brand" role="status">{WEB3FORMS_KEY ? "Thanks, your message is on its way." : "Your email client should now be open with the message prepared."}</p> : null}
+        {status === "error" ? <p className="text-sm text-red-600" role="status">Something went wrong. Please email {siteConfig.email} directly.</p> : null}
+      </div>
+    </form>
+  );
+}
+
+function Field({ label, name, type = "text", autoComplete, required = false }: { label: string; name: string; type?: string; autoComplete?: string; required?: boolean }) {
+  return (
+    <label className="block text-sm font-semibold text-ink">{label}
+      <input type={type} name={name} autoComplete={autoComplete} required={required} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base text-ink outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/20" />
+    </label>
+  );
+}

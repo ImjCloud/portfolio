@@ -70,4 +70,22 @@ export function ToolsGrid() {
           <div
             key={tool.name}
             className={cn(
-              "reֻǱ˞
+              "relative flex flex-col gap-3 rounded-2xl border bg-paper p-4 shadow-card transition duration-300 hover:-translate-y-1",
+              learning ? "border-line hover:border-accent/40 hover:shadow-glow" : "border-line hover:border-brand/30 hover:shadow-glow",
+            )}
+          >
+            {learning ? (
+              <span className="absolute -right-2 -top-2 rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.06em] text-white shadow-sm">
+                Learning
+              </span>
+            ) : null}
+            <span className={cn("grid size-10 place-items-center rounded-xl", learning ? "bg-accent/10 text-accent" : "bg-brand/10 text-brand")}>
+              <Icon size={19} />
+            </span>
+            <p className="text-sm font-semibold text-ink">{tool.name}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

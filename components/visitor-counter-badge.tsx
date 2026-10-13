@@ -39,4 +39,11 @@ export function VisitorCounterBadge({ className }: { className?: string }) {
           <span className="relative inline-flex size-2 rounded-full bg-teal" />
         </span>
         <Eye size={13} className="text-muted" />
-        <p classNamֻǱ˞
+        <p className="text-sm font-semibold text-ink">
+          <AnimatedCounter value={visits} />
+        </p>
+        <p className="text-[11px] text-muted">visits</p>
+      </div>
+    </motion.div>
+  );
+}

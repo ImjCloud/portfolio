@@ -46,4 +46,81 @@ export function AdminTestimonialsPanel() {
   }, []);
 
   useEffect(() => {
-    conֻǱ˞
+    const saved = typeof window !== "undefined" ? sessionStorage.getItem("admin-secret") : null;
+    if (saved) {
+      setSecret(saved);
+      load(saved);
+    }
+  }, [load]);
+
+  async function act(id: string, action: "approve" | "reject") {
+    setBusyId(id);
+    setActionError(null);
+    try {
+      const response = await fetch(`/api/testimonials/admin/${action}/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        body: JSON.stringify({ id }),
+      });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error ?? `Request failed (${response.status}).`);
+      }
+      setItems((current) => current.filter((item) => item.id !== id));
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (!unlocked) {
+    return (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          sessionStorage.setItem("admin-secret", secret);
+          load(secret);
+        }}
+        className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
+      >
+        <label className="block text-sm font-semibold text-ink">Admin secret
+          <input type="password" value={secret} onChange={(event) => setSecret(event.target.value)} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" />
+        </label>
+        <Button type="submit" variant="brand" className="mt-4">Unlock</Button>
+        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Incorrect secret, or ADMIN_SECRET is not set in your environment.</p> : null}
+      </form>
+    );
+  }
+
+  if (!configured) {
+    return <p className="rounded-3xl border border-dashed border-line p-8 text-sm text-muted">Supabase environment variables are not set on this deployment yet.</p>;
+  }
+
+  if (status === "loading") return <Loader2 className="animate-spin-slow text-brand" />;
+
+  if (items.length === 0) return <p className="rounded-3xl border border-dashed border-line p-8 text-sm text-muted">Nothing pending review.</p>;
+
+  return (
+    <div className="grid gap-4">
+      {actionError ? <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600" role="alert">{actionError}</p> : null}
+      {items.map((item) => (
+        <article key={item.id} className="rounded-3xl border border-line bg-paper p-6 shadow-card">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-semibold text-ink">{item.name}</p>
+              <p className="text-xs text-muted">{[item.role, item.company].filter(Boolean).join(", ")}{item.email ? ` · ${item.email}` : ""}</p>
+            </div>
+            <StarRatingDisplay value={item.rating} />
+          </div>
+          <p className="mt-3 text-sm leading-6 text-ink">{item.recommendation}</p>
+          {item.linkedin_url ? <a href={item.linkedin_url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs text-brand hover:underline">{item.linkedin_url}</a> : null}
+          <div className="mt-4 flex gap-3">
+            <Button size="sm" variant="brand" disabled={busyId === item.id} onClick={() => act(item.id, "approve")}><Check size={14} /> Approve</Button>
+            <Button size="sm" variant="secondary" disabled={busyId === item.id} onClick={() => act(item.id, "reject")}><X size={14} /> Reject</Button>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}

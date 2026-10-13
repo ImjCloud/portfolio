@@ -19,4 +19,11 @@ export function ProjectCard({ project }: { project: Project }) {
         </div>
         <div className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
           <span className="text-sm font-semibold text-ink">{project.kpi}</span>
-          <Link href={`/projects/${projֻǱ˞
+          <Link href={`/projects/${project.slug}/`} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-brand transition group-hover:gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+            Case study <ArrowUpRight size={16} />
+          </Link>
+        </div>
+      </div>
+    </article>
+  );
+}

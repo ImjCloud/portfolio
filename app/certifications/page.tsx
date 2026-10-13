@@ -19,4 +19,14 @@ export default function CertificationsPage() {
                 <span className="absolute -right-4 -top-5 font-mono text-8xl font-semibold text-brand/[.07]">0{index + 1}</span>
                 {inProgress ? <Clock size={24} className="text-accent" /> : <BadgeCheck size={24} className="text-brand" />}
                 <p className={`mt-10 text-xs font-bold uppercase tracking-[0.13em] ${inProgress ? "text-accent" : "text-brand"}`}>{item.status}</p>
-                <h2 clasֻǱ˞
+                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-ink">{item.name}</h2>
+                <p className="mt-2 text-sm text-muted">{item.organisation}</p>
+              </article>
+            );
+          })}
+        </div>
+        <div className="mt-8"><DynamicContentList section="certificates" /></div>
+      </section>
+    </>
+  );
+}
