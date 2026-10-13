@@ -22,16 +22,16 @@ export default function HomePage() {
         <div className="absolute inset-0 -z-10 bg-grid opacity-[0.4] [mask-image:radial-gradient(ellipse_70%_65%_at_25%_0%,black,transparent)]" />
         <div className="container grid min-h-[calc(100svh-68px)] items-center gap-14 py-16 lg:grid-cols-[1.08fr_.92fr] lg:py-20">
           <Reveal>
-            <p className="eyebrow">Business analysis · Agile delivery · Product thinking</p>
-            <h1 className="mt-6 max-w-4xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-ink sm:text-6xl lg:text-[4.75rem]">Turning ambiguity into <span className="text-gradient-aurora">confident delivery.</span></h1>
-            <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-muted sm:text-xl">I&apos;m Oluwadamilola John Joseph, a Business Analyst and Agile Delivery Specialist who helps teams turn complex needs into measurable product outcomes.</p>
+            <p className="eyebrow">Digital Technology Business Analyst · Digital Products · Workflow Automation</p>
+            <h1 className="mt-6 max-w-4xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-ink sm:text-6xl lg:text-[4.75rem]">Turning business needs into <span className="text-gradient-aurora">delivery-ready requirements.</span></h1>
+            <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-muted sm:text-xl">I&apos;m Oluwadamilola John Joseph, a Business Analyst who connects stakeholder needs to clear requirements, prioritised backlogs, testable acceptance criteria and UAT-ready delivery.</p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Button asChild size="lg" variant="brand"><a href="/downloads/resume.pdf" download><Download size={18} /> Download CV</a></Button>
-              <Button asChild variant="secondary" size="lg"><Link href="/projects/"><FolderOpen size={18} /> View projects</Link></Button>
+              <Button asChild variant="secondary" size="lg"><Link href="/projects/"><FolderOpen size={18} /> View case studies</Link></Button>
               <Button asChild variant="ghost" size="lg"><Link href="/contact/"><Mail size={18} /> Contact me</Link></Button>
             </div>
             <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-xs text-muted">
-              <span className="inline-flex items-center gap-2"><span className="relative flex size-2"><span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-brand" /><span className="relative inline-flex size-2 rounded-full bg-brand" /></span>Open to UK remote opportunities</span>
+              <span className="inline-flex items-center gap-2"><span className="relative flex size-2"><span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-brand" /><span className="relative inline-flex size-2 rounded-full bg-brand" /></span>Open to UK opportunities · relocation planned</span>
               <span>Lagos, Nigeria</span>
             </div>
           </Reveal>
@@ -78,7 +78,7 @@ export default function HomePage() {
 
       <section className="section border-y border-line bg-surface" aria-labelledby="experience-heading"><div className="container"><Reveal><div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between"><SectionHeading eyebrow="02 · Experience" title="Building momentum across complex delivery environments." description="Selected roles where I have led discovery, structured delivery and made performance more visible." /><Button asChild variant="secondary"><Link href="/experience/">Full experience <ArrowRight size={16} /></Link></Button></div></Reveal><Reveal delay={0.1}><div id="experience-heading"><ExperienceTimeline /></div></Reveal></div></section>
 
-      <section className="section container" aria-labelledby="work-heading"><Reveal><div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between"><SectionHeading eyebrow="03 · Selected work" title="Work designed to create a measurable shift." description="From delivery rescue to operational digitisation, each case study shows the problem, my role and the business value created." /><Button asChild variant="secondary"><Link href="/projects/">All projects <ArrowRight size={16} /></Link></Button></div></Reveal><div id="work-heading" className="mt-12 grid gap-6 lg:grid-cols-3">{publishedProjects.map((project, index) => <Reveal key={project.slug} delay={index * 0.08}><ProjectCard project={project} /></Reveal>)}</div></section>
+      <section className="section container" aria-labelledby="work-heading"><Reveal><div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between"><SectionHeading eyebrow="03 · Selected work" title="Work designed to create a measurable shift." description="From workflow automation to delivery stabilisation, each case study separates the problem, my contribution, and the evidence available for the outcome." /><Button asChild variant="secondary"><Link href="/projects/">All projects <ArrowRight size={16} /></Link></Button></div></Reveal><div id="work-heading" className="mt-12 grid gap-6 md:grid-cols-2">{publishedProjects.map((project, index) => <Reveal key={project.slug} delay={index * 0.08}><ProjectCard project={project} /></Reveal>)}</div></section>
 
       <section className="section border-y border-line" aria-labelledby="skills-heading"><div className="container"><Reveal><SectionHeading eyebrow="04 · Capabilities" title="The analytical toolkit behind the delivery." description="A practical blend of business analysis, agile delivery, stakeholder management and developing data capability. Tap a category to explore." /></Reveal><div id="skills-heading" className="mt-12"><Reveal delay={0.08}><SkillsPanel /></Reveal></div></div></section>
 
