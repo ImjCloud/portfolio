@@ -11,6 +11,7 @@ import {
 import { notFound } from "next/navigation";
 
 import { projects } from "@/data/projects";
+import { siteConfig } from "@/data/site";
 import { Button } from "@/components/ui/button";
 import { ProjectCover } from "@/components/project-cover";
 import { AuroraBackground } from "@/components/aurora-background";
@@ -35,8 +36,27 @@ export async function generateMetadata({
 
   const project = projects.find((item) => item.slug === slug);
 
+  if (!project) {
+    return {
+      title: "Project not found",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const canonicalUrl = `${siteConfig.url}/projects/${project.slug}/`;
+
   return {
-    title: project ? project.title : "Project",
+    title: project.title,
+    description: project.summary,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: "article",
+      url: canonicalUrl,
+      title: `${project.title} | ${siteConfig.shortName}`,
+      description: project.summary,
+      siteName: siteConfig.shortName,
+    },
+    robots: { index: true, follow: true },
   };
 }
 
