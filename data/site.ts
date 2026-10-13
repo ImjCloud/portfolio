@@ -3,8 +3,8 @@ export const siteConfig = {
   shortName: "Oluwadamilola Joseph",
   title: "Business Analyst & Agile Delivery Specialist",
   description:
-    "Portfolio and CV of Oluwadamilola John Joseph, a Business Analyst and Agile Delivery Specialist delivering measurable outcomes across SaaS, fintech, HR-tech and operations.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://oluwadamilola-joseph.vercel.app",
+    "Portfolio and CV of Oluwadamilola John Joseph, a Business Analyst focused on requirements engineering, Agile delivery, UAT and digital transformation across SaaS, fintech, HR-tech and operations.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://oluwadamilola-cv.vercel.app",
   email: "jholuwadamilola@gmail.com",
   phone: "+234 706 470 6095",
   location: "Lagos, Nigeria",
