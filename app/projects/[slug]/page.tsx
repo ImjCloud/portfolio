@@ -14,6 +14,7 @@ import { projects } from "@/data/projects";
 import { siteConfig } from "@/data/site";
 import { Button } from "@/components/ui/button";
 import { ProjectCover } from "@/components/project-cover";
+import { CaseStudyFlow } from "@/components/case-study-flow";
 import { AuroraBackground } from "@/components/aurora-background";
 import { Reveal } from "@/components/motion/reveal";
 
@@ -123,6 +124,8 @@ export default async function ProjectDetailPage({
           <MetricCard label="Timeframe" value={project.period} />
         </div>
       </section>
+
+      <CaseStudyFlow slug={project.slug} />
 
       <section className="section container">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_.75fr]">
