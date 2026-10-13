@@ -38,4 +38,61 @@ async function storageRequest(path: string, init: RequestInit = {}) {
   }
 
   const text = await response.text();
-  if (!teֻǱ˞
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+/** Creates a small client scoped to one Storage bucket. */
+function createBucketClient(bucket: string) {
+  return {
+    async list(): Promise<StorageObject[]> {
+      const result = await storageRequest(`/object/list/${bucket}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 200, sortBy: { column: "created_at", order: "desc" } }),
+      });
+      const objects = (result as StorageObject[]) ?? [];
+      // Supabase Storage's "list" can include a placeholder entry for empty folders; filter that out.
+      return objects.filter((item) => item.id !== null);
+    },
+
+    async signedUrl(fileName: string, expiresInSeconds = 3600): Promise<string> {
+      const creds = getServiceCreds();
+      if (!creds) throw new Error("Supabase storage is not configured on this deployment yet.");
+      const result = (await storageRequest(`/object/sign/${bucket}/${encodeURIComponent(fileName)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expiresIn: expiresInSeconds }),
+      })) as { signedURL: string };
+      return `${creds.url}/storage/v1${result.signedURL}`;
+    },
+
+    async upload(fileName: string, file: File): Promise<void> {
+      const buffer = await file.arrayBuffer();
+      await storageRequest(`/object/${bucket}/${encodeURIComponent(fileName)}`, {
+        method: "POST",
+        headers: { "Content-Type": file.type || "application/octet-stream", "x-upsert": "true" },
+        body: buffer,
+      });
+    },
+
+    async remove(fileName: string): Promise<void> {
+      await storageRequest(`/object/${bucket}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prefixes: [fileName] }),
+      });
+    },
+  };
+}
+
+/** Signed reference letters (PDFs), private bucket "reference-letters". */
+export const referenceLetters = createBucketClient("reference-letters");
+
+/** General content uploads (documents + images) for Certificates, Skills and
+ * Experience entries added through /admin/content. Private bucket "content-uploads". */
+export const contentUploads = createBucketClient("content-uploads");

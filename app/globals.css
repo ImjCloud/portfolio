@@ -61,4 +61,105 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
-::selection { backgroundֻǱ˞
+::selection { background: hsl(var(--brand) / .28); color: hsl(var(--ink)); }
+
+/* subtle grain for premium depth, à la Linear/Stripe */
+.grain { position: relative; }
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+@layer components {
+  .container { @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12; }
+  .section { @apply py-20 sm:py-28 lg:py-32; }
+
+  .eyebrow { @apply inline-flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-brand; }
+  .eyebrow::before { content: ""; @apply h-[6px] w-[6px] rounded-full bg-brand; }
+
+  .card-surface { @apply rounded-4xl border border-line bg-paper shadow-card; }
+
+  /* Hides the scrollbar on horizontally-swipeable strips (category tabs, etc.)
+     while keeping them fully scrollable, for a cleaner native-feeling mobile UI. */
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Glassmorphism, tuned per theme via the CSS vars above */
+  .glass {
+    background-color: hsl(var(--glass-bg) / var(--glass-bg-alpha));
+    border: 1px solid hsl(var(--ink) / var(--glass-border-alpha) / 0.08);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.06) inset, 0 24px 60px -30px hsl(var(--glass-shadow) / 0.55);
+  }
+  .dark .glass { border-color: hsl(0 0% 100% / 0.08); }
+  .glass-strong {
+    background-color: hsl(var(--glass-bg) / calc(var(--glass-bg-alpha) + 0.18));
+    border: 1px solid hsl(0 0% 100% / 0.12);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+  }
+
+  .bg-grid { background-image: linear-gradient(hsl(var(--line)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--line)) 1px, transparent 1px); background-size: 44px 44px; }
+  .bg-dot-grid { background-image: radial-gradient(hsl(var(--ink) / 0.09) 1px, transparent 1px); background-size: 22px 22px; }
+
+  .text-gradient { @apply bg-brand-gradient bg-clip-text text-transparent; }
+  .text-gradient-aurora {
+    background-image: linear-gradient(100deg, hsl(var(--brand)) 0%, hsl(var(--brand-2)) 45%, hsl(var(--teal)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* ---------- Aurora background ---------- */
+.aurora-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -10;
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(72px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.dark .aurora-blob { opacity: 0.42; filter: blur(84px); }
+.aurora-blob--a { background: hsl(var(--aurora-1) / 0.55); animation: aurora-drift-a 22s ease-in-out infinite; }
+.aurora-blob--b { background: hsl(var(--aurora-2) / 0.5); animation: aurora-drift-b 26s ease-in-out infinite; }
+.aurora-blob--c { background: hsl(var(--aurora-3) / 0.4); animation: aurora-drift-c 30s ease-in-out infinite; }
+
+/* Lighter blur on small screens: keeps scrolling smooth on mid/low-end phones,
+   where three continuously-animating heavy blur filters are the most common
+   cause of visible scroll jank. */
+@media (max-width: 640px) {
+  .aurora-blob { filter: blur(36px); }
+  .dark .aurora-blob { filter: blur(42px); }
+}
+
+@keyframes aurora-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(6%, 8%) scale(1.08); }
+  66% { transform: translate(-4%, 4%) scale(0.96); }
+}
+@keyframes aurora-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(-8%, 6%) scale(1.05); }
+  70% { transform: translate(5%, -6%) scale(0.98); }
+}
+@keyframes aurora-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(7%, -5%) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

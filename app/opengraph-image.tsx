@@ -42,4 +42,30 @@ export default function OpengraphImage() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ display: "flex", fontSize: 60, fontWeight: 700, lineHeight: 1.08, letterSpacing: -2 }}>
-            Turning ambiguity into confideֻǱ˞
+            Turning ambiguity into confident delivery.
+          </div>
+          <div style={{ display: "flex", fontSize: 28, opacity: 0.7 }}>{siteConfig.title}</div>
+        </div>
+
+        <div style={{ display: "flex", gap: 14 }}>
+          {["Business Analysis", "Agile Delivery", "UAT & Stakeholders", "Lagos -> UK Remote"].map((tag) => (
+            <div
+              key={tag}
+              style={{
+                display: "flex",
+                padding: "10px 20px",
+                borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.25)",
+                fontSize: 20,
+                opacity: 0.85,
+              }}
+            >
+              {tag}
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    { ...size },
+  );
+}

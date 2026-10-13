@@ -31,4 +31,30 @@ const config: Config = {
       backgroundImage: {
         "grid-light": "linear-gradient(hsl(var(--line)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--line)) 1px, transparent 1px)",
         "brand-gradient": "linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--brand-2)) 100%)",
-        "aurora-gradient": "linear-gradient(100deg, hsl(var(--brand)) 0%, hsl(var(--brand-2)) 45%, hsl(var(--teal)) 10ֻǱ˞
+        "aurora-gradient": "linear-gradient(100deg, hsl(var(--brand)) 0%, hsl(var(--brand-2)) 45%, hsl(var(--teal)) 100%)",
+      },
+      keyframes: {
+        "fade-up": { "0%": { opacity: "0", transform: "translateY(16px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+        float: { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-8px)" } },
+        "float-slow": { "0%,100%": { transform: "translateY(0) rotate(0deg)" }, "50%": { transform: "translateY(-10px) rotate(0.6deg)" } },
+        "pulse-ring": { "0%": { opacity: "0.55" }, "100%": { opacity: "0" } },
+        shimmer: { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
+        "grow-bar": { "0%": { transform: "scaleY(0)" }, "100%": { transform: "scaleY(1)" } },
+        "spin-slow": { "0%": { transform: "rotate(0deg)" }, "100%": { transform: "rotate(360deg)" } },
+      },
+      animation: {
+        float: "float 6s ease-in-out infinite",
+        "float-slow": "float-slow 9s ease-in-out infinite",
+        "pulse-ring": "pulse-ring 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
+        shimmer: "shimmer 3s linear infinite",
+        "spin-slow": "spin-slow 14s linear infinite",
+      },
+      transitionTimingFunction: {
+        expo: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;

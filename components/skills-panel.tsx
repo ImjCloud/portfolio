@@ -27,4 +27,52 @@ export function SkillsPanel() {
             role="tab"
             aria-selected={active === index}
             onClick={() => setActive(index)}
-            clasֻǱ˞
+            className={cn(
+              "min-h-11 shrink-0 snap-start whitespace-nowrap rounded-full px-5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+              active === index ? "bg-brand-gradient text-white shadow-glow" : "border border-line bg-paper text-muted hover:border-brand/40 hover:text-ink",
+            )}
+          >
+            {group.title}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative mt-6 min-h-[220px] overflow-hidden rounded-4xl border border-line bg-paper p-7 shadow-card sm:p-9">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeGroup.title}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="max-w-xl text-sm leading-6 text-muted">{groupCopy[activeGroup.title] ?? "A practical part of the delivery toolkit."}</p>
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              {activeGroup.skills.map((skill, index) => {
+                const developing = skill.toLowerCase().includes("in progress");
+                const label = skill.replace(/\s*\(in progress\)\s*/i, "");
+                return (
+                  <motion.span
+                    key={skill}
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: index * 0.045 }}
+                    className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-medium text-ink transition hover:-translate-y-0.5 hover:border-brand/40 hover:bg-brand/[0.06]"
+                  >
+                    {label}
+                    {developing ? <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-accent">Developing</span> : null}
+                  </motion.span>
+                );
+              })}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="mt-8">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Tools in practice</p>
+        <div className="mt-4"><ToolsGrid /></div>
+      </div>
+    </div>
+  );
+}

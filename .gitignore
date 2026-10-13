@@ -1,0 +1,14 @@
+﻿node_modules/
+.next/
+out/
+.vercel/
+.env*
+!.env.example
+!.env.production.example
+*.backup.*
+package-lock.vercel-original.json
+package-lock.security-review-backup.json
+package.security-review-backup.json
+package.pre-postcss-override.json
+package-lock.pre-postcss-override.json
+package-lock.workspace-warning-backup.json

@@ -32,4 +32,18 @@ export function ProjectCover({ category, className }: ProjectCoverProps) {
           </linearGradient>
         </defs>
         <rect width="400" height="250" fill={`url(#${gradientId})`} />
-        {/* signature motif: layered process lines, echoing process-mapping / workflֻǱ˞
+        {/* signature motif: layered process lines, echoing process-mapping / workflow work */}
+        <g opacity="0.55" stroke={a} strokeWidth="1.4" fill="none">
+          <path d="M-20 180 C 80 140, 140 210, 220 150 S 380 100, 440 130" />
+          <path d="M-20 210 C 90 175, 150 230, 230 185 S 390 140, 440 165" opacity="0.6" />
+        </g>
+        <g fill={b}>
+          <circle cx="72" cy="150" r="4" opacity="0.8" />
+          <circle cx="220" cy="150" r="4" opacity="0.8" />
+          <circle cx="340" cy="112" r="4" opacity="0.8" />
+        </g>
+      </svg>
+      <div className="absolute inset-0 bg-dot-grid opacity-[0.35] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_20%,black,transparent)]" />
+    </div>
+  );
+}

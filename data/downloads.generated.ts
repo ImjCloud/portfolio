@@ -17,7 +17,7 @@ export const generatedDownloads: GeneratedDownload[] = [
     "title": "Resume",
     "type": "PDF",
     "size": "76 KB",
-    "updatedAt": "2026-07-21T18:51:37.214Z",
+    "updatedAt": "2026-10-12T23:23:54.685Z",
     "available": true
   }
 ];
