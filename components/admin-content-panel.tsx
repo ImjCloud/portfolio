@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { ExternalLink, FileText, ImageIcon, Loader2, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,14 +69,6 @@ export function AdminContentPanel() {
     }
   }, []);
 
-  useEffect(() => {
-    const saved = typeof window !== "undefined" ? sessionStorage.getItem("admin-secret") : null;
-    if (saved) {
-      setSecret(saved);
-      load(saved);
-    }
-  }, [load]);
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setUploadError(null);
@@ -117,7 +109,6 @@ export function AdminContentPanel() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          sessionStorage.setItem("admin-secret", secret);
           load(secret);
         }}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
