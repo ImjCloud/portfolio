@@ -35,8 +35,19 @@ export async function generateMetadata({
 
   const project = projects.find((item) => item.slug === slug);
 
+  if (!project) {
+    return { title: "Project not found", robots: { index: false, follow: false } };
+  }
+
   return {
-    title: project ? project.title : "Project",
+    title: project.title,
+    description: project.summary,
+    alternates: { canonical: `/projects/${project.slug}/` },
+    openGraph: {
+      type: "article",
+      title: project.title,
+      description: project.summary,
+    },
   };
 }
 
