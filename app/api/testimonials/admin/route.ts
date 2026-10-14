@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured, supabaseRest } from "@/lib/supabase-rest";
-import { checkAdminSession, checkSameOrigin } from "@/lib/admin-auth";
+import { checkAdminSession } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
