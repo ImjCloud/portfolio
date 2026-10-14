@@ -74,9 +74,9 @@ create policy "Public can read site stats"
 grant execute on function public.increment_visits() to anon;
 ```
 
-**2. Done.** No new environment variables needed.
+**2. Configure rate limiting.** Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in local development and Vercel. The public increment endpoint is limited to 30 requests per IP per minute and returns HTTP 503 when rate limiting is not configured or unavailable, so the counter will not increment until Upstash is working.
 
-**Honest limitation**: this counts once per browser session (so refreshing or navigating between pages doesn't inflate it), but since it has to be callable by any visitor with no login, a determined person could still call the increment endpoint directly and inflate the number. That's an accepted trade-off for a lightweight counter like this, not a real analytics platform, if you need tamper-proof numbers later, a proper analytics service (Vercel Analytics, Plausible, etc.) is the right tool instead.
+**Honest limitation**: this still counts browser-session visits rather than unique people and is not tamper-proof analytics. IP-based rate limiting reduces casual abuse but cannot prevent all manipulation (for example, distributed requests). For reliable analytics, use a dedicated service such as Vercel Analytics or Plausible.
 
 ## Contact form
 
@@ -137,11 +137,13 @@ create policy "Public can read approved testimonials"
 | `SUPABASE_URL` | Project URL | No, server-only |
 | `SUPABASE_ANON_KEY` | `anon` `public` key | No, server-only (used inside API routes, never sent to the client) |
 | `SUPABASE_SERVICE_ROLE_KEY` | `service_role` key | No, server-only, keep this secret |
-| `ADMIN_SECRET` | Any password you choose | No, server-only |
+| `ADMIN_SECRET` | Use a long, unique random secret; rotate it if exposed | No, server-only |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis database REST URL | No, server-only |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | No, server-only |
 
-**4. Moderate submissions** by visiting `/admin/testimonials` on your deployed site, entering the `ADMIN_SECRET` you set, and approving or rejecting each pending recommendation. The page is excluded from search engines and sitemaps. This is a lightweight, personal-site-appropriate gate (a shared secret compared server-side), not enterprise SSO, keep the secret private and treat the URL as unlisted rather than fully public-proof.
+**4. Admin access** is handled through `/admin/testimonials`, `/admin/content` and `/admin/references`. Enter `ADMIN_SECRET` to create a one-hour, signed server-validated session cookie. The cookie is `HttpOnly`, `SameSite=Strict`, and `Secure` in production; admin API routes validate the session and state-changing requests must be same-origin. Use a long, unique secret and never commit it to Git. This is a single-admin gate, not multi-user identity management or enterprise SSO.
 
-**Spam protection included:** a hidden honeypot field on the form (bots that fill every input trip it and are silently ignored) plus server-side validation of field lengths and the rating range. For heavier spam traffic later, consider adding Cloudflare Turnstile or hCaptcha to the form.
+**Spam protection included:** a hidden honeypot, server-side validation, and shared Upstash Redis rate limits (5 submissions per IP per hour). Admin login is limited to 10 attempts per IP per 15 minutes. Configure both Upstash variables above in local development and Vercel; the login and testimonial submission endpoints intentionally fail closed if rate limiting is not configured or the rate-limit service is unavailable. Consider Cloudflare Turnstile or hCaptcha as an additional layer if spam traffic warrants it.
 
 Until these environment variables are set, the Testimonials section shows an honest "not connected yet" message instead of erroring.
 
@@ -178,7 +180,7 @@ No public insert policy is needed, every write goes through the admin API route 
 
 **2. Create the storage bucket.** Supabase dashboard → **Storage** → **New bucket** → name it exactly `content-uploads` → leave "Public bucket" unchecked → Create.
 
-**3. Done.** No new environment variables needed, this reuses `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `ADMIN_SECRET` that are already set up.
+**3. Done.** This reuses `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `ADMIN_SECRET`. Admin login additionally requires the Upstash Redis variables documented in the Testimonials section.
 
 ## Reference letters (Supabase Storage)
 
@@ -188,7 +190,7 @@ Upload real, signed reference-letter PDFs from an admin page, they appear on `/r
 
 That's it, no SQL, no RLS policies to write. Every upload, download and delete goes through your own API routes using the `SUPABASE_SERVICE_ROLE_KEY` you already set up for testimonials, the bucket itself never needs to be public. Downloads are served through short-lived signed URLs (1 hour) generated on each page load.
 
-**2. Upload letters** at `/admin/references`, same `ADMIN_SECRET` password as the testimonials admin page. PDF, JPG, PNG or WEBP, up to 10MB per file.
+**2. Upload letters** at `/admin/references`, using the same admin session as the other admin pages. PDF, JPG, PNG or WEBP, up to 10MB per file.
 
 **3. Done.** Approved letters show up automatically on `/references`, no extra config.
 

@@ -1,14 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured, supabaseRest } from "@/lib/supabase-rest";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-// A lightweight public visit counter. GET reads the current count without
-// incrementing (used when a visitor has already been counted this browser
-// session); POST atomically increments via a Postgres function and returns
-// the new count. Being callable by anyone with no auth is an accepted
-// trade-off for a simple counter like this, it isn't protecting sensitive
-// data, at worst someone could inflate the number, not access anything.
+// The count is a lightweight display metric, not tamper-proof analytics.
+// Shared IP-based limiting reduces casual abuse of the public increment endpoint.
 
 export async function GET() {
   if (!isSupabaseConfigured("anon")) return NextResponse.json({ configured: false, visits: null });
@@ -20,7 +17,15 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const rate = await consumeRateLimit(req, "visit-counter", 30, 60);
+  if (!rate.configured) {
+    return NextResponse.json({ error: "Visit counter protection is not configured." }, { status: 503 });
+  }
+  if (!rate.allowed) {
+    return NextResponse.json({ error: "Too many visit-count requests." }, { status: 429, headers: { "Retry-After": "60" } });
+  }
+
   if (!isSupabaseConfigured("anon")) return NextResponse.json({ configured: false, visits: null });
   try {
     const result = await supabaseRest.rpc("increment_visits");

@@ -1,10 +1,10 @@
 export const siteConfig = {
   name: "Oluwadamilola John Joseph",
   shortName: "Oluwadamilola Joseph",
-  title: "Business Analyst & Agile Delivery Specialist",
+  title: "Digital Technology Business Analyst | Workflow Automation",
   description:
-    "Portfolio and CV of Oluwadamilola John Joseph, a Business Analyst and Agile Delivery Specialist delivering measurable outcomes across SaaS, fintech, HR-tech and operations.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://oluwadamilola-joseph.vercel.app",
+    "Portfolio and CV of Oluwadamilola John Joseph, a digital technology Business Analyst focused on requirements engineering, workflow automation, Agile delivery, UAT and digital transformation across SaaS, fintech, HR-tech, pensions and operations.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://oluwadamilola-cv.vercel.app",
   email: "jholuwadamilola@gmail.com",
   phone: "+234 706 470 6095",
   location: "Lagos, Nigeria",
@@ -29,9 +29,9 @@ export const navigation = [
 
 export const stats = [
   { value: 3, suffix: "+", label: "Years delivering digital products" },
-  { value: 30, suffix: "%", label: "Faster feature delivery cycle" },
+  { value: 30, suffix: "%", label: "Reported faster feature delivery" },
   { value: 40, suffix: "+", label: "Requirements revalidated on one platform" },
-  { value: 25, suffix: "%", label: "Reporting efficiency gained" },
+  { value: 25, suffix: "%", label: "Less manual reporting preparation" },
 ];
 
 export const recruiterFacts = [
@@ -148,7 +148,8 @@ export const toolLibrary = [
 ] as const;
 
 export const certifications = [
-  { name: "Practitioner Certificate in Business Analysis Practice", organisation: "BCS", status: "In progress, 2026" },
+  { name: "Practitioner Certificate in Business Analysis Practice", organisation: "BCS", status: "Planned" },
+  { name: "Practitioner Certificate in Requirements Engineering", organisation: "BCS", status: "Planned" },
   { name: "Agile Scrum Master", organisation: "Professional credential", status: "Completed" },
   { name: "Jira Project Management", organisation: "Professional credential", status: "Completed" },
   { name: "Advanced Agile Methodology", organisation: "Professional credential", status: "Completed" },

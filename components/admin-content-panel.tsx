@@ -50,12 +50,12 @@ export function AdminContentPanel() {
   const [uploading, setUploading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const load = useCallback(async (key: string) => {
+  const load = useCallback(async () => {
     setStatus("loading");
     try {
-      const response = await fetch("/api/content/admin/", { headers: { "x-admin-secret": key } });
+      const response = await fetch("/api/content/admin/", { cache: "no-store" });
       if (response.status === 401) {
-        setStatus("error");
+        setStatus("idle");
         setUnlocked(false);
         return;
       }
@@ -69,13 +69,14 @@ export function AdminContentPanel() {
     }
   }, []);
 
-  useEffect(() => {
-    const saved = typeof window !== "undefined" ? sessionStorage.getItem("admin-secret") : null;
-    if (saved) {
-      setSecret(saved);
-      load(saved);
-    }
-  }, [load]);
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => null);
+    setUnlocked(false);
+    setItems([]);
+    setSecret("");
+    setStatus("idle");
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -85,13 +86,13 @@ export function AdminContentPanel() {
       const formData = new FormData(event.currentTarget);
       const response = await fetch("/api/content/admin/", {
         method: "POST",
-        headers: { "x-admin-secret": secret },
+        
         body: formData,
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Upload failed.");
       formRef.current?.reset();
-      await load(secret);
+      await load();
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
@@ -101,32 +102,57 @@ export function AdminContentPanel() {
 
   async function handleDelete(item: ContentItem) {
     try {
-      await fetch("/api/content/admin/", {
+      const response = await fetch("/api/content/admin/", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
-        body: JSON.stringify({ id: item.id, fileName: item.file_name, imageName: item.image_name }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id }),
       });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error ?? `Delete failed (${response.status}).`);
+      }
       setItems((current) => current.filter((existing) => existing.id !== item.id));
-    } catch {
-      setUploadError("Could not delete that item. Please try again.");
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Could not delete that item. Please try again.");
     }
   }
+
+
+  async function handleUnlock(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("loading");
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret }),
+      });
+      if (!response.ok) {
+        setStatus("error");
+        return;
+      }
+      setSecret("");
+      await load();
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   if (!unlocked) {
     return (
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          sessionStorage.setItem("admin-secret", secret);
-          load(secret);
-        }}
+        onSubmit={handleUnlock}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
       >
         <label className="block text-sm font-semibold text-ink">Admin secret
           <input type="password" value={secret} onChange={(event) => setSecret(event.target.value)} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" />
         </label>
         <Button type="submit" variant="brand" className="mt-4">Unlock</Button>
-        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Incorrect secret, or ADMIN_SECRET is not set in your environment.</p> : null}
+        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Login failed. Check the credential and server configuration.</p> : null}
       </form>
     );
   }
@@ -135,6 +161,7 @@ export function AdminContentPanel() {
 
   return (
     <div className="grid gap-8">
+      <div className="flex justify-end"><Button type="button" size="sm" variant="secondary" onClick={handleLogout}>Log out</Button></div>
       <div className="rounded-4xl border border-line bg-paper p-6 shadow-card sm:p-8">
         <label className="block text-sm font-semibold text-ink">Where should this appear?
           <select value={section} onChange={(event) => setSection(event.target.value as Section)} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20">

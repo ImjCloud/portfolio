@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured, supabaseRest } from "@/lib/supabase-rest";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,14 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const rate = await consumeRateLimit(req, "testimonial-submit", 5, 3600);
+  if (!rate.configured) {
+    return NextResponse.json({ error: "Submission protection is not configured yet." }, { status: 503 });
+  }
+  if (!rate.allowed) {
+    return NextResponse.json({ error: "Too many submissions. Please try again later." }, { status: 429, headers: { "Retry-After": "3600" } });
+  }
+
   if (!isSupabaseConfigured("anon")) {
     return NextResponse.json({ error: "The recommendation system is not connected yet. Please email directly instead." }, { status: 503 });
   }
