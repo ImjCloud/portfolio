@@ -59,6 +59,15 @@ export function AdminReferencesPanel() {
     void load();
   }, [load]);
 
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => null);
+    setUnlocked(false);
+    setLetters([]);
+    setSecret("");
+    setStatus("idle");
+  }
+
   async function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -163,6 +172,7 @@ export function AdminReferencesPanel() {
 
   return (
     <div className="grid gap-6">
+      <div className="flex justify-end"><Button type="button" size="sm" variant="secondary" onClick={handleLogout}>Log out</Button></div>
       <div className="rounded-3xl border border-dashed border-brand/35 bg-brand/5 p-6">
         <input
           ref={fileInputRef}
