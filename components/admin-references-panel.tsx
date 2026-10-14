@@ -24,13 +24,13 @@ export function AdminReferencesPanel() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async (key: string) => {
+  const load = useCallback(async () => {
     setStatus("loading");
     setUploadError(null);
 
     try {
       const response = await fetch("/api/references/admin/", {
-        headers: { "x-admin-secret": key },
+        
         cache: "no-store",
       });
       const result = await response.json();
@@ -38,8 +38,8 @@ export function AdminReferencesPanel() {
       if (!response.ok) {
         setUnlocked(false);
         setLetters([]);
-        setStatus("error");
-        setUploadError(response.status === 401 ? "Invalid admin secret." : (result.error ?? "Could not load reference letters."));
+        setStatus(response.status === 401 ? "idle" : "error");
+        setUploadError(response.status === 401 ? null : (result.error ?? "Could not load reference letters."));
         return false;
       }
 
@@ -55,10 +55,9 @@ export function AdminReferencesPanel() {
     }
   }, []);
 
-  // The admin secret stays in component memory only; do not persist it in browser storage.
   useEffect(() => {
-    setSecret("");
-  }, []);
+    void load();
+  }, [load]);
 
   async function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -73,14 +72,14 @@ export function AdminReferencesPanel() {
 
       const response = await fetch("/api/references/admin/", {
         method: "POST",
-        headers: { "x-admin-secret": secret },
+        
         body: formData,
       });
       const result = await response.json();
 
       if (!response.ok) throw new Error(result.error ?? "Upload failed.");
 
-      await load(secret);
+      await load();
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
@@ -95,7 +94,7 @@ export function AdminReferencesPanel() {
     try {
       const response = await fetch("/api/references/admin/", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fileName }),
       });
       const result = await response.json();
@@ -108,13 +107,35 @@ export function AdminReferencesPanel() {
     }
   }
 
+
+  async function handleUnlock(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("loading");
+    setUploadError(null);
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setStatus("error");
+        setUploadError(result.error ?? "Login failed.");
+        return;
+      }
+      setSecret("");
+      await load();
+    } catch {
+      setStatus("error");
+      setUploadError("Could not connect to the server. Please try again.");
+    }
+  }
+
   if (!unlocked) {
     return (
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void load(secret);
-        }}
+        onSubmit={handleUnlock}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
       >
         <label className="block text-sm font-semibold text-ink">
