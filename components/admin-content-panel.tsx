@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ExternalLink, FileText, ImageIcon, Loader2, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,12 +50,12 @@ export function AdminContentPanel() {
   const [uploading, setUploading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const load = useCallback(async (key: string) => {
+  const load = useCallback(async () => {
     setStatus("loading");
     try {
-      const response = await fetch("/api/content/admin/", { headers: { "x-admin-secret": key } });
+      const response = await fetch("/api/content/admin/", { cache: "no-store" });
       if (response.status === 401) {
-        setStatus("error");
+        setStatus("idle");
         setUnlocked(false);
         return;
       }
@@ -77,13 +77,13 @@ export function AdminContentPanel() {
       const formData = new FormData(event.currentTarget);
       const response = await fetch("/api/content/admin/", {
         method: "POST",
-        headers: { "x-admin-secret": secret },
+        
         body: formData,
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Upload failed.");
       formRef.current?.reset();
-      await load(secret);
+      await load();
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
@@ -95,7 +95,7 @@ export function AdminContentPanel() {
     try {
       const response = await fetch("/api/content/admin/", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: item.id }),
       });
       if (!response.ok) {
@@ -108,20 +108,42 @@ export function AdminContentPanel() {
     }
   }
 
+
+  async function handleUnlock(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("loading");
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret }),
+      });
+      if (!response.ok) {
+        setStatus("error");
+        return;
+      }
+      setSecret("");
+      await load();
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   if (!unlocked) {
     return (
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          load(secret);
-        }}
+        onSubmit={handleUnlock}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
       >
         <label className="block text-sm font-semibold text-ink">Admin secret
           <input type="password" value={secret} onChange={(event) => setSecret(event.target.value)} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" />
         </label>
         <Button type="submit" variant="brand" className="mt-4">Unlock</Button>
-        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Incorrect secret, or ADMIN_SECRET is not set in your environment.</p> : null}
+        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Login failed. Check the credential and server configuration.</p> : null}
       </form>
     );
   }
