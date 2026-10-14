@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRatingDisplay } from "@/components/star-rating";
@@ -26,12 +26,12 @@ export function AdminTestimonialsPanel() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const load = useCallback(async (key: string) => {
+  const load = useCallback(async () => {
     setStatus("loading");
     try {
-      const response = await fetch("/api/testimonials/admin/", { headers: { "x-admin-secret": key } });
+      const response = await fetch("/api/testimonials/admin/", { cache: "no-store" });
       if (response.status === 401) {
-        setStatus("error");
+        setStatus("idle");
         setUnlocked(false);
         return;
       }
@@ -51,7 +51,7 @@ export function AdminTestimonialsPanel() {
     try {
       const response = await fetch(`/api/testimonials/admin/${action}/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
       if (!response.ok) {
@@ -66,20 +66,42 @@ export function AdminTestimonialsPanel() {
     }
   }
 
+
+  async function handleUnlock(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("loading");
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret }),
+      });
+      if (!response.ok) {
+        setStatus("error");
+        return;
+      }
+      setSecret("");
+      await load();
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   if (!unlocked) {
     return (
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          load(secret);
-        }}
+        onSubmit={handleUnlock}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
       >
         <label className="block text-sm font-semibold text-ink">Admin secret
           <input type="password" value={secret} onChange={(event) => setSecret(event.target.value)} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" />
         </label>
         <Button type="submit" variant="brand" className="mt-4">Unlock</Button>
-        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Incorrect secret, or ADMIN_SECRET is not set in your environment.</p> : null}
+        {status === "error" ? <p className="mt-3 text-sm text-red-600" role="alert">Login failed. Check the credential and server configuration.</p> : null}
       </form>
     );
   }
