@@ -13,7 +13,7 @@ function requestKey(req: NextRequest) {
   const direct = req.headers.get("x-real-ip")?.trim();
   if (direct) return direct.slice(0, 100);
   const forwarded = req.headers.get("x-forwarded-for")?.split(",").map((part) => part.trim()).filter(Boolean);
-  return (forwarded?.at(-1) || "unknown").slice(0, 100);
+  return (forwarded?.[forwarded.length - 1] || "unknown").slice(0, 100);
 }
 
 /** Shared fixed-window limiter backed by Upstash Redis REST. Fails closed if not configured. */
