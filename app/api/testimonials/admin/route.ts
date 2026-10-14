@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured, supabaseRest } from "@/lib/supabase-rest";
-import { checkAdminSecret } from "@/lib/admin-auth";
+import { checkAdminSession, checkSameOrigin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  if (!checkAdminSecret(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
+  if (!checkAdminSession(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   if (!isSupabaseConfigured("service")) return NextResponse.json({ configured: false, testimonials: [] });
 
   try {
