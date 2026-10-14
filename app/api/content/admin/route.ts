@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
 
   let fileName: string | null = null;
   let imageName: string | null = null;
+  const uploadedObjects: string[] = [];
 
   try {
     if (file instanceof File && file.size > 0) {
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
       if (!isStorageConfigured()) return NextResponse.json({ error: "Storage is not configured on this deployment yet." }, { status: 503 });
       fileName = `${Date.now()}-${sanitiseFileName(file.name)}`;
       await contentUploads.upload(fileName, file);
+      uploadedObjects.push(fileName);
     }
     if (image instanceof File && image.size > 0) {
       const extension = extensionOf(image.name);
@@ -91,6 +93,7 @@ export async function POST(req: NextRequest) {
       if (!isStorageConfigured()) return NextResponse.json({ error: "Storage is not configured on this deployment yet." }, { status: 503 });
       imageName = `${Date.now()}-${sanitiseFileName(image.name)}`;
       await contentUploads.upload(imageName, image);
+      uploadedObjects.push(imageName);
     }
 
     await supabaseRest.adminInsert("content_items", {
@@ -105,6 +108,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch {
+    // If the DB insert or a later upload fails, remove objects created by this request.
+    await Promise.allSettled(uploadedObjects.map((objectName) => contentUploads.remove(objectName)));
     return NextResponse.json({ error: "Unable to save content item." }, { status: 500 });
   }
 }
