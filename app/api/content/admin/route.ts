@@ -70,6 +70,24 @@ export async function POST(req: NextRequest) {
   }
   if (!name) return NextResponse.json({ error: "Name is required." }, { status: 400 });
 
+  // Validate all submitted files before uploading either one, so a bad second
+  // file cannot leave the first file orphaned in Storage.
+  if (file instanceof File && file.size > 0) {
+    const extension = extensionOf(file.name);
+    if (!DOCUMENT_TYPES[extension] || !DOCUMENT_TYPES[extension].includes(file.type)) return NextResponse.json({ error: "Document must be a PDF, DOC or DOCX file." }, { status: 400 });
+    if (file.size > MAX_SIZE_BYTES) return NextResponse.json({ error: "Document is larger than 10MB." }, { status: 400 });
+    if (!(await hasExpectedSignature(file, extension))) return NextResponse.json({ error: "Document content does not match its file type." }, { status: 400 });
+  }
+  if (image instanceof File && image.size > 0) {
+    const extension = extensionOf(image.name);
+    if (!IMAGE_TYPES[extension] || !IMAGE_TYPES[extension].includes(image.type)) return NextResponse.json({ error: "Image must be PNG, JPG, GIF or WebP." }, { status: 400 });
+    if (image.size > MAX_SIZE_BYTES) return NextResponse.json({ error: "Image is larger than 10MB." }, { status: 400 });
+    if (!(await hasExpectedSignature(image, extension))) return NextResponse.json({ error: "Image content does not match its file type." }, { status: 400 });
+  }
+  if ((file instanceof File && file.size > 0 || image instanceof File && image.size > 0) && !isStorageConfigured()) {
+    return NextResponse.json({ error: "Storage is not configured on this deployment yet." }, { status: 503 });
+  }
+
   let fileName: string | null = null;
   let imageName: string | null = null;
   const uploadedObjects: string[] = [];
