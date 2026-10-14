@@ -69,6 +69,15 @@ export function AdminContentPanel() {
     }
   }, []);
 
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => null);
+    setUnlocked(false);
+    setItems([]);
+    setSecret("");
+    setStatus("idle");
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setUploadError(null);
@@ -152,6 +161,7 @@ export function AdminContentPanel() {
 
   return (
     <div className="grid gap-8">
+      <div className="flex justify-end"><Button type="button" size="sm" variant="secondary" onClick={handleLogout}>Log out</Button></div>
       <div className="rounded-4xl border border-line bg-paper p-6 shadow-card sm:p-8">
         <label className="block text-sm font-semibold text-ink">Where should this appear?
           <select value={section} onChange={(event) => setSection(event.target.value as Section)} className="mt-2 h-12 w-full rounded-2xl border border-line bg-surface px-4 text-base text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20">
