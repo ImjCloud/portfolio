@@ -112,7 +112,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   const body = (await req.json().catch(() => null)) as { fileName?: string } | null;
-  if (!body?.fileName || body.fileName.includes("/") || body.fileName.includes("\\\\")) {
+  if (!body?.fileName || body.fileName.includes("/") || body.fileName.includes("\\")) {
     return NextResponse.json({ error: "A valid fileName is required." }, { status: 400 });
   }
 
