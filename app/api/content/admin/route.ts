@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured, supabaseRest } from "@/lib/supabase-rest";
 import { contentUploads, isStorageConfigured } from "@/lib/supabase-storage";
-import { checkAdminSecret } from "@/lib/admin-auth";
+import { checkAdminSession, checkSameOrigin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +39,7 @@ async function hasExpectedSignature(file: File, extension: string): Promise<bool
 }
 
 export async function GET(req: NextRequest) {
-  if (!checkAdminSecret(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
+  if (!checkAdminSession(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   if (!isSupabaseConfigured("service")) return NextResponse.json({ configured: false, items: [] });
 
   try {
@@ -51,7 +51,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!checkAdminSecret(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
+  if (!checkSameOrigin(req)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  if (!checkAdminSession(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   if (!isSupabaseConfigured("service")) return NextResponse.json({ error: "Supabase is not configured on this deployment yet." }, { status: 503 });
 
   const formData = await req.formData().catch(() => null);
@@ -109,7 +110,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!checkAdminSecret(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
+  if (!checkSameOrigin(req)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  if (!checkAdminSession(req)) return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   const body = (await req.json().catch(() => null)) as { id?: string } | null;
   const id = typeof body?.id === "string" ? body.id.trim() : "";
   if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
