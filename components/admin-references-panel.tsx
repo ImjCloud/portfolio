@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, ImageIcon, Loader2, Trash2, Upload } from "lucide-react";
@@ -55,15 +55,10 @@ export function AdminReferencesPanel() {
     }
   }, []);
 
+  // The admin secret stays in component memory only; do not persist it in browser storage.
   useEffect(() => {
-    const saved = sessionStorage.getItem("admin-secret");
-    if (saved) {
-      setSecret(saved);
-      void load(saved).then((ok) => {
-        if (!ok) sessionStorage.removeItem("admin-secret");
-      });
-    }
-  }, [load]);
+    setSecret("");
+  }, []);
 
   async function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -118,9 +113,7 @@ export function AdminReferencesPanel() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void load(secret).then((ok) => {
-            if (ok) sessionStorage.setItem("admin-secret", secret);
-          });
+          void load(secret);
         }}
         className="max-w-sm rounded-3xl border border-line bg-paper p-6 shadow-card"
       >
