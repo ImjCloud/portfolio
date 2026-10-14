@@ -45,6 +45,15 @@ export function AdminTestimonialsPanel() {
     }
   }, []);
 
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => null);
+    setUnlocked(false);
+    setItems([]);
+    setSecret("");
+    setStatus("idle");
+  }
+
   async function act(id: string, action: "approve" | "reject") {
     setBusyId(id);
     setActionError(null);
@@ -116,6 +125,7 @@ export function AdminTestimonialsPanel() {
 
   return (
     <div className="grid gap-4">
+      <div className="flex justify-end"><Button type="button" size="sm" variant="secondary" onClick={handleLogout}>Log out</Button></div>
       {actionError ? <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600" role="alert">{actionError}</p> : null}
       {items.map((item) => (
         <article key={item.id} className="rounded-3xl border border-line bg-paper p-6 shadow-card">
