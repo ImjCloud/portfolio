@@ -74,9 +74,9 @@ create policy "Public can read site stats"
 grant execute on function public.increment_visits() to anon;
 ```
 
-**2. Done.** No new environment variables needed.
+**2. Configure rate limiting.** Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in local development and Vercel. The public increment endpoint is limited to 30 requests per IP per minute and returns HTTP 503 when rate limiting is not configured or unavailable, so the counter will not increment until Upstash is working.
 
-**Honest limitation**: this counts once per browser session (so refreshing or navigating between pages doesn't inflate it), but since it has to be callable by any visitor with no login, a determined person could still call the increment endpoint directly and inflate the number. That's an accepted trade-off for a lightweight counter like this, not a real analytics platform, if you need tamper-proof numbers later, a proper analytics service (Vercel Analytics, Plausible, etc.) is the right tool instead.
+**Honest limitation**: this still counts browser-session visits rather than unique people and is not tamper-proof analytics. IP-based rate limiting reduces casual abuse but cannot prevent all manipulation (for example, distributed requests). For reliable analytics, use a dedicated service such as Vercel Analytics or Plausible.
 
 ## Contact form
 
