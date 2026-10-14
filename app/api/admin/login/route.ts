@@ -6,12 +6,21 @@ import {
   createAdminSessionToken,
   verifyAdminSecret,
 } from "@/lib/admin-auth";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   if (!checkSameOrigin(req)) {
     return NextResponse.json({ error: "Invalid request origin." }, { status: 403, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const rate = await consumeRateLimit(req, "admin-login", 10, 900);
+  if (!rate.configured) {
+    return NextResponse.json({ error: "Login protection is not configured." }, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
+  if (!rate.allowed) {
+    return NextResponse.json({ error: "Too many login attempts. Try again later." }, { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "900" } });
   }
 
   const body = (await req.json().catch(() => null)) as { secret?: unknown } | null;
