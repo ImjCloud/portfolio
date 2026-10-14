@@ -1,6 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { isStorageConfigured, referenceLetters } from "@/lib/supabase-storage";
-import { checkAdminSecret } from "@/lib/admin-auth";
+import { checkAdminSession, checkSameOrigin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ function sanitiseFileName(name: string) {
 }
 
 export async function GET(req: NextRequest) {
-  if (!checkAdminSecret(req)) {
+  if (!checkAdminSession(req)) {
     return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   }
 
@@ -42,7 +42,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!checkAdminSecret(req)) {
+  if (!checkSameOrigin(req)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  if (!checkAdminSession(req)) {
     return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   }
 
@@ -76,7 +77,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!checkAdminSecret(req)) {
+  if (!checkSameOrigin(req)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  if (!checkAdminSession(req)) {
     return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
   }
 
